@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リリースノート - EveKuru</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .release-content h1, .release-content h2, .release-content h3 { @apply text-xl font-bold mt-4 mb-2 border-b pb-1; }
+        .release-content ul { @apply list-disc list-inside ml-4; }
+        .release-content li { @apply mb-1; }
+        .release-content p { @apply mb-2; }
+        .release-content a { @apply text-teal-600 hover:underline; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="flex flex-col min-h-screen">
+        <!-- Header -->
+        <header id="app-header" class="bg-white shadow-md sticky top-0 z-40"></header>
+        
+        <main class="flex-grow container mx-auto px-6 py-12">
+            <section>
+                <h2 class="text-3xl font-bold text-center mb-10">リリースノート</h2>
+                <div id="release-notes-container" class="max-w-3xl mx-auto space-y-8">
+                    <!-- Release notes will be loaded here -->
+                </div>
+                <div id="loadingIndicator" class="text-center py-10">
+                    <i class="fas fa-spinner fa-spin text-primary text-3xl"></i>
+                    <p class="mt-2 text-gray-600">読み込み中...</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer"></footer>
+    </div>
+
+    <script type="module" src="common.js"></script>
+    <script type="module">
+        import { initCommonUI } from './common.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            initCommonUI("EveKuru");
+
+            // --- GitHub Release Notes Fetcher ---
+            const GITHUB_USER = 'qcda-dev'; // ご自身のGitHubユーザー名
+            const GITHUB_REPO = 'EveKuru'; // このアプリのリポジトリ名
+
+            const container = document.getElementById('release-notes-container');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/releases`;
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Network response was not ok: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(releases => {
+                    loadingIndicator.classList.add('hidden');
+                    if (releases.length === 0) {
+                        container.innerHTML = '<p class="text-center text-gray-500">リリース情報はまだありません。</p>';
+                        return;
+                    }
+                    releases.forEach(release => {
+                        const releaseDate = new Date(release.published_at).toLocaleDateString('ja-JP');
+                        const releaseElement = document.createElement('div');
+                        releaseElement.className = 'bg-white p-6 rounded-xl shadow-md';
+                        const releaseBodyHtml = marked.parse(release.body);
+
+                        releaseElement.innerHTML = `
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="text-2xl font-bold text-gray-900">${release.name || release.tag_name}</h3>
+                                <span class="text-sm text-gray-500">${releaseDate}</span>
+                            </div>
+                            <div class="release-content text-gray-700">${releaseBodyHtml}</div>
+                        `;
+                        container.appendChild(releaseElement);
+                    });
+                })
+                .catch(error => {
+                    loadingIndicator.classList.add('hidden');
+                    console.error('Error fetching release notes:', error);
+                    container.innerHTML = '<p class="text-center text-red-500">リリース情報の取得に失敗しました。リポジトリ名が正しいか、またリポジトリがPublicに設定されているか確認してください。</p>';
+                });
+        });
+    </script>
+</body>
+</html>

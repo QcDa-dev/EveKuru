@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EveKuru - 使い方ガイド</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="common.css">
+</head>
+<body class="antialiased">
+    <div class="flex flex-col min-h-screen">
+        <!-- Header -->
+        <header id="app-header" class="bg-white shadow-md sticky top-0 z-40"></header>
+        
+        <main class="flex-grow container mx-auto max-w-2xl p-4 sm:p-6">
+            <header class="text-center py-8">
+                <h1 class="text-4xl sm:text-5xl font-extrabold text-primary">EveKuru</h1>
+                <h2 class="mt-2 text-2xl sm:text-3xl font-bold text-gray-800">使い方ガイド</h2>
+                <p class="mt-4 text-lg text-gray-600">EveKuruの基本的な使い方をご紹介します</p>
+            </header>
+
+            <div class="space-y-12">
+                <section class="bg-white p-6 sm:p-8 rounded-xl shadow-md">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">はじめに</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        「EveKuru」へようこそ！<br>
+                        このアプリは、あなただけのデジタル会員証を簡単なステップで作成・表示できるWebアプリケーションです。
+                    </p>
+                </section>
+
+                <section>
+                    <div class="space-y-8">
+                        <div class="step-card">
+                            <h4 class="step-title">
+                                <span class="step-number">1</span>まずはユーザー登録
+                            </h4>
+                            <p>最初のログイン画面にある「新規登録はこちら」ボタンをタップします。表示された画面で「氏名」と「メールアドレス」を入力し、「登録」ボタンを押してユーザー登録を完了させてください。</p>
+                        </div>
+                        <div class="step-card">
+                            <h4 class="step-title">
+                                <span class="step-number">2</span>登録した情報でログイン
+                            </h4>
+                            <p>登録完了後、ログイン画面に戻ります。先ほど登録した「氏名」と「メールアドレス」を入力し、「ログイン」ボタンをタップすると、あなた専用の会員証が表示されます。</p>
+                        </div>
+                        <div class="step-card">
+                            <h4 class="step-title">
+                                <span class="step-number">3</span>会員証を確認・利用する
+                            </h4>
+                            <p>ログイン後に表示されるのがあなたの会員証です。専用のQRコードと登録情報が表示されます。一度ログインすると、次回からアプリを開いた際には自動的にこの画面が表示されるので便利です。</p>
+                        </div>
+                        <div class="step-card">
+                            <h4 class="step-title">
+                                <span class="step-number">4</span>登録した情報を変更する
+                            </h4>
+                            <p>会員証画面の「登録情報の変更」ボタンから、氏名やメールアドレスを修正できます。情報を変更した後は、セキュリティのため再度ログインが必要になります。</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="app-footer"></footer>
+    </div>
+    <script type="module" src="common.js"></script>
+    <script type="module">
+        import { initCommonUI } from './common.js';
+        document.addEventListener('DOMContentLoaded', () => {
+            initCommonUI("EveKuru");
+        });
+    </script>
+</body>
+</html>

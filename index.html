@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EveKuru</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="common.css">
+</head>
+<body class="antialiased">
+    <div id="app" class="flex flex-col min-h-screen">
+        <!-- Header -->
+        <header id="app-header" class="bg-white shadow-md sticky top-0 z-40"></header>
+
+        <!-- Main Content -->
+        <main class="flex-grow flex flex-col justify-center p-4">
+
+            <!-- ログイン画面 -->
+            <div id="login-screen">
+                <div class="text-center mb-8">
+                    <h1 class="text-5xl font-bold text-primary">EveKuru</h1>
+                    <p class="text-gray-500 mt-2">ログインしてください</p>
+                </div>
+                <div id="login-message" class="message-area"></div>
+                <form class="space-y-4">
+                    <input type="text" id="login-name" placeholder="氏名" class="input-field">
+                    <input type="email" id="login-email" placeholder="メールアドレス" class="input-field">
+                    <button type="button" id="login-button" class="btn btn-primary">ログイン</button>
+                    <button type="button" id="goto-register-button" class="btn btn-secondary">新規登録はこちら</button>
+                </form>
+            </div>
+
+            <!-- 新規登録画面 -->
+            <div id="register-screen" class="hidden">
+                 <div class="text-center mb-8">
+                    <h1 class="text-4xl font-bold text-primary">新規登録</h1>
+                </div>
+                <div id="register-message" class="message-area"></div>
+                <form class="space-y-4">
+                    <input type="text" id="register-name" placeholder="氏名" class="input-field">
+                    <input type="email" id="register-email" placeholder="メールアドレス" class="input-field">
+                    <button type="button" id="register-button" class="btn btn-primary">登録</button>
+                    <button type="button" id="goto-login-button" class="btn btn-secondary">ログイン画面へ</button>
+                </form>
+            </div>
+
+            <!-- 会員証画面 -->
+            <div id="card-screen" class="hidden">
+                 <div class="text-center mb-6">
+                    <h1 class="text-4xl font-bold text-primary">会員証</h1>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm mx-auto flex flex-col items-center">
+                    <div id="qr-code-container" class="w-48 h-48 mb-6 p-2 border-4 border-gray-100 rounded-lg">
+                        <img id="qr-code" src="" alt="QR Code" class="w-full h-full object-contain">
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold" id="card-name"></p>
+                        <p class="text-gray-500 mt-1" id="card-email"></p>
+                    </div>
+                </div>
+                 <div class="mt-8 space-y-4">
+                    <button type="button" id="goto-edit-button" class="btn btn-primary">登録情報の変更</button>
+                    <button type="button" id="logout-button" class="btn btn-secondary">ログアウト</button>
+                </div>
+            </div>
+
+            <!-- 登録情報変更画面 -->
+            <div id="edit-screen" class="hidden">
+                <div class="text-center mb-8">
+                    <h1 class="text-4xl font-bold text-primary">登録情報の変更</h1>
+                </div>
+                <div id="edit-message" class="message-area"></div>
+                <form class="space-y-4">
+                    <input type="text" id="edit-name" class="input-field">
+                    <input type="email" id="edit-email" class="input-field">
+                    <button type="button" id="update-button" class="btn btn-primary">変更を保存</button>
+                    <button type="button" id="back-to-card-button" class="btn btn-secondary">戻る</button>
+                </form>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="app-footer"></footer>
+    </div>
+
+    <!-- ローディングインジケーター -->
+    <div id="loader" class="fixed inset-0 bg-white bg-opacity-75 z-50 flex items-center justify-center hidden">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary"></div>
+    </div>
+
+    <script type="module" src="common.js"></script>
+    <script type="module">
+        import { initCommonUI, callGasApi } from './common.js';
+        
+        // --- DOM Elements ---
+        const screens = {
+            login: document.getElementById('login-screen'),
+            register: document.getElementById('register-screen'),
+            card: document.getElementById('card-screen'),
+            edit: document.getElementById('edit-screen')
+        };
+        const loader = document.getElementById('loader');
+
+        // --- UI Control ---
+        function showScreen(screenName) {
+            Object.values(screens).forEach(s => s.classList.add('hidden'));
+            if(screens[screenName]) screens[screenName].classList.remove('hidden');
+        }
+
+        function showMessage(elementId, message, isError = false) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = `message-area ${isError ? 'error' : 'success'}`;
+        }
+
+        function validateInput(name, email) {
+            if (!name.trim() || !email.trim()) return '氏名とメールアドレスは必須です。';
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) return '有効なメールアドレスを入力してください。';
+            return null;
+        }
+
+        // --- Event Handlers ---
+        document.getElementById('goto-register-button').addEventListener('click', () => showScreen('register'));
+        document.getElementById('goto-login-button').addEventListener('click', () => showScreen('login'));
+        document.getElementById('goto-edit-button').addEventListener('click', () => {
+             const user = JSON.parse(localStorage.getItem('EveKuruUser'));
+             if(user){
+                document.getElementById('edit-name').value = user.name;
+                document.getElementById('edit-email').value = user.email;
+             }
+            showScreen('edit');
+        });
+        document.getElementById('back-to-card-button').addEventListener('click', () => showScreen('card'));
+
+        document.getElementById('register-button').addEventListener('click', async () => {
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const validationError = validateInput(name, email);
+            if (validationError) {
+                showMessage('register-message', validationError, true);
+                return;
+            }
+            loader.classList.remove('hidden');
+            try {
+                const result = await callGasApi('registerUser', { name, email });
+                showMessage('login-message', result.message, false);
+                showScreen('login');
+            } catch (error) {
+                showMessage('register-message', error.message, true);
+            } finally {
+                loader.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('login-button').addEventListener('click', async () => {
+            const name = document.getElementById('login-name').value;
+            const email = document.getElementById('login-email').value;
+            const validationError = validateInput(name, email);
+            if (validationError) {
+                showMessage('login-message', validationError, true);
+                return;
+            }
+            loader.classList.remove('hidden');
+            try {
+                const result = await callGasApi('loginUser', { name, email });
+                localStorage.setItem('EveKuruUser', JSON.stringify(result.user));
+                displayCardScreen(result.user);
+            } catch (error) {
+                showMessage('login-message', error.message, true);
+            } finally {
+                loader.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('update-button').addEventListener('click', async () => {
+            const user = JSON.parse(localStorage.getItem('EveKuruUser'));
+            const newName = document.getElementById('edit-name').value;
+            const newEmail = document.getElementById('edit-email').value;
+            const validationError = validateInput(newName, newEmail);
+            if (validationError) {
+                showMessage('edit-message', validationError, true);
+                return;
+            }
+            loader.classList.remove('hidden');
+            try {
+                const result = await callGasApi('updateUserInfo', { oldEmail: user.email, newName, newEmail });
+                localStorage.removeItem('EveKuruUser');
+                showMessage('login-message', result.message, false);
+                showScreen('login');
+            } catch (error) {
+                showMessage('edit-message', error.message, true);
+            } finally {
+                loader.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('logout-button').addEventListener('click', () => {
+            localStorage.removeItem('EveKuruUser');
+            document.getElementById('login-name').value = '';
+            document.getElementById('login-email').value = '';
+            showMessage('login-message', 'ログアウトしました。', false);
+            showScreen('login');
+        });
+        
+        function displayCardScreen(user) {
+            document.getElementById('qr-code').src = user.qrCodeUrl;
+            document.getElementById('card-name').textContent = user.name;
+            document.getElementById('card-email').textContent = user.email;
+            showScreen('card');
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initCommonUI("EveKuru");
+            const savedUser = localStorage.getItem('EveKuruUser');
+            if (savedUser) {
+                displayCardScreen(JSON.parse(savedUser));
+            } else {
+                showScreen('login');
+            }
+        });
+    </script>
+</body>
+</html>
