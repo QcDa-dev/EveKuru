@@ -4,7 +4,7 @@
 
 // --- Configuration ---
 // !!!【重要】!!! デプロイしたGASウェブアプリのURLに必ず置き換えてください
-const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzLKle5sOfzZakkhHIsPECeEp5IavsRIvTfsv_AZWP3c9PXW-ChMuWUhtuOD_rwQhxP/exec'; 
+const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbw_uoAzQx99fw9J0vX8IYmKRI_l7KEmpsmNnjPG9AUjUkMsgcem_OZa8c3XgqWNdAzI/exec'; 
 
 /**
  * URLからクエリパラメータを取得する
