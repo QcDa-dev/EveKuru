@@ -1,16 +1,6 @@
-name: Deploy to GitHub Pageson:push:branches:- main # mainブランチへのpushをトリガーにjobs:build-and-deploy:runs-on: ubuntu-lateststeps:- name: Checkoutuses: actions/checkout@v3  # Node.jsのセットアップ（将来的なビルドツール使用のため）
-  - name: Setup Node.js
-    uses: actions/setup-node@v3
-    with:
-      node-version: '18'
-
-  # ビルドステップ（現時点では不要だが、将来のために残す）
-  # - name: Build
-  #   run: npm install && npm run build
-
-  - name: Deploy to GitHub Pages
+name: Deploy to GitHub Pagesmainブランチにプッシュされたときにワークフローを実行on:push:branches:- mainjobs:build-and-deploy:# 実行環境として最新のUbuntuを使用runs-on: ubuntu-lateststeps:# ステップ1: リポジトリのコードをチェックアウト- name: Checkout 🛎️uses: actions/checkout@v4  # ステップ2: GitHub Pagesへのデプロイを実行
+  - name: Deploy 🚀
     uses: JamesIves/github-pages-deploy-action@v4
     with:
-      branch: gh-pages # 公開用のブランチ
-      folder: . # リポジトリのルートをデプロイ
-      clean: true # デプロイ前にブランチをクリーンアップ
+      branch: gh-pages # The branch the action should deploy to.
+      folder: . # The folder the action should deploy.
