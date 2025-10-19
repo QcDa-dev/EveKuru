@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EveKuru - 会員証</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="common.css">
+</head>
+<body class="antialiased">
+    <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col p-4 pt-20">
+        <main class="flex-grow flex flex-col justify-center">
+            <div id="card-screen">
+                 <div class="text-center mb-6">
+                    <h1 class="text-4xl font-bold text-primary">会員証</h1>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm mx-auto flex flex-col items-center">
+                    <div class="w-48 h-48 mb-6 p-2 border-4 border-gray-100 rounded-lg">
+                        <img id="qr-code" src="" alt="QR Code" class="w-full h-full object-contain">
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold" id="card-userID"></p>
+                        <p class="text-gray-500 mt-1" id="card-email"></p>
+                    </div>
+                </div>
+                 <div class="mt-8 space-y-4">
+                    <button type="button" id="goto-edit-button" class="w-full btn-primary font-bold py-3 px-4 rounded-lg shadow-md">登録情報の変更</button>
+                    <button type="button" id="logout-button" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg">ログアウト</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div id="loader" class="loader-container hidden">
+        <div class="loader-spinner"></div>
+    </div>
+    <script src="common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const eventParam = new URLSearchParams(window.location.search).toString();
+            const user = JSON.parse(localStorage.getItem('EveKuruUser'));
+
+            if (!user) {
+                window.location.href = `index.html?${eventParam}`;
+                return;
+            }
+
+            document.getElementById('qr-code').src = user.qrCodeUrl;
+            document.getElementById('card-userID').textContent = user.userID;
+            document.getElementById('card-email').textContent = user.email;
+
+            document.getElementById('goto-edit-button').addEventListener('click', () => {
+                window.location.href = `edit.html?${eventParam}`;
+            });
+
+            document.getElementById('logout-button').addEventListener('click', () => {
+                localStorage.removeItem('EveKuruUser');
+                window.location.href = `index.html?${eventParam}`;
+            });
+        });
+    </script>
+</body>
+</html>
