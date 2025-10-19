@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EveKuru - リセット</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="common.css">
+</head>
+<body class="antialiased">
+    <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col p-4 pt-20">
+        <main class="flex-grow flex flex-col justify-center">
+            <div id="reset-screen">
+                <div class="text-center mb-6">
+                    <h1 id="page-title" class="text-4xl font-bold text-primary"></h1>
+                </div>
+                <div id="reset-message" class="mb-4 text-center"></div>
+                <form id="reset-form" class="space-y-4 bg-white p-6 rounded-lg shadow">
+                    <!-- フォーム内容はJSで動的に生成 -->
+                </form>
+            </div>
+        </main>
+    </div>
+    <div id="loader" class="loader-container hidden">
+        <div class="loader-spinner"></div>
+    </div>
+    <script src="common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const mode = params.get('mode');
+            const email = params.get('email');
+
+            const pageTitle = document.getElementById('page-title');
+            const resetForm = document.getElementById('reset-form');
+            
+            if (!mode || !email) {
+                pageTitle.textContent = "エラー";
+                resetForm.innerHTML = `<p class="text-center text-red-600">無効なURLです。再度メールからアクセスしてください。</p>`;
+                return;
+            }
+
+            let formHtml = '';
+            switch (mode) {
+                case 'id_reset':
+                    pageTitle.textContent = 'IDの再設定';
+                    formHtml = `
+                        <input type="text" id="new_ID" placeholder="新しいID" class="input-field p-3" required>
+                        <input type="password" id="current_password" placeholder="現在のパスワード" class="input-field p-3" required>
+                    `;
+                    break;
+                case 'password_reset':
+                    pageTitle.textContent = 'パスワードの再設定';
+                    formHtml = `
+                        <input type="password" id="new_password" placeholder="新しいパスワード" class="input-field p-3" required>
+                        <input type="text" id="current_ID" placeholder="現在のID" class="input-field p-3" required>
+                    `;
+                    break;
+                case 'id_password_reset':
+                    pageTitle.textContent = 'IDとパスワードの再設定';
+                    formHtml = `
+                        <input type="text" id="new_ID" placeholder="新しいID" class="input-field p-3" required>
+                        <input type="password" id="new_password" placeholder="新しいパスワード" class="input-field p-3" required>
+                    `;
+                    break;
+            }
+            resetForm.innerHTML = formHtml + `
+                <button type="button" id="reset-button" class="w-full btn-primary font-bold py-3 px-4 rounded-lg shadow-md">登録</button>
+                <button type="button" id="back-to-login-button" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg">ログインページへ</button>
+            `;
+            
+            document.getElementById('reset-button').addEventListener('click', async () => {
+                const payload = { mode, email };
+                if (document.getElementById('new_ID')) payload.newID = document.getElementById('new_ID').value;
+                if (document.getElementById('new_password')) payload.newPassword = document.getElementById('new_password').value;
+                if (document.getElementById('current_password')) payload.currentPassword = document.getElementById('current_password').value;
+                if (document.getElementById('current_ID')) payload.currentID = document.getElementById('current_ID').value;
+                
+                const response = await callGasApi('resetCredential', payload);
+                showMessage('reset-message', response.message, !response.success);
+
+                if(response.success){
+                   setTimeout(() => window.location.href = 'index.html', 3000);
+                }
+            });
+
+            document.getElementById('back-to-login-button').addEventListener('click', () => {
+                 window.location.href = 'index.html';
+            });
+        });
+    </script>
+</body>
+</html>
