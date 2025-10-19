@@ -1,6 +1,6 @@
 /**
  * =================================================================
- * EveKuru 共通スクリプト (common.js) 変更してみた
+ * EveKuru 共通スクリプト (common.js)
  * =================================================================
  */
 
@@ -144,8 +144,11 @@ function createCommonFooter() {
 
 
 // --- ページの初期化 ---
+// [修正] このブロックを削除し、初期化処理を各HTMLファイルに移行します。
+/*
 document.addEventListener('DOMContentLoaded', () => {
     createCommonHeader();
     createCommonFooter();
 });
+*/
 
