@@ -4,18 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EveKuru</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="common.css">
+
+    <style>
+        /* 基本スタイル */
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background-color: #f9fafb; /* bg-gray-50 */
+            color: #1f2937; /* text-gray-800 */
+        }
+        /* カスタムカラー */
+        .text-primary { color: #20c997; }
+        .bg-primary { background-color: #20c997; }
+        .border-primary { border-color: #20c997; }
+        .btn-primary {
+            background-color: #20c997;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover { background-color: #1aa079; }
+        .btn-secondary {
+            background-color: white;
+            color: #20c997;
+            border: 1px solid #20c997;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .btn-secondary:hover { background-color: #e9f9f4; }
+        .input-field {
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+            width: 100%;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #20c997;
+            box-shadow: 0 0 0 2px rgba(32, 201, 151, 0.2);
+        }
+    </style>
 </head>
 <body class="antialiased">
-    <div id="app" class="flex flex-col min-h-screen">
-        <!-- Header -->
-        <header id="app-header" class="bg-white shadow-md sticky top-0 z-40"></header>
+    <!-- #appコンテナ: ヘッダー分の余白(pt-16)を確保 -->
+    <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col p-4 pt-20">
 
-        <!-- Main Content -->
-        <main class="flex-grow flex flex-col justify-center p-4">
+        <!-- ===== メインコンテンツ ===== -->
+        <main class="flex-grow flex flex-col justify-center">
 
             <!-- ログイン画面 -->
             <div id="login-screen">
@@ -23,12 +62,12 @@
                     <h1 class="text-5xl font-bold text-primary">EveKuru</h1>
                     <p class="text-gray-500 mt-2">ログインしてください</p>
                 </div>
-                <div id="login-message" class="message-area"></div>
+                <div id="login-message" class="mb-4 text-center"></div>
                 <form class="space-y-4">
-                    <input type="text" id="login-name" placeholder="氏名" class="input-field">
-                    <input type="email" id="login-email" placeholder="メールアドレス" class="input-field">
-                    <button type="button" id="login-button" class="btn btn-primary">ログイン</button>
-                    <button type="button" id="goto-register-button" class="btn btn-secondary">新規登録はこちら</button>
+                    <input type="text" id="login-name" placeholder="氏名" class="input-field p-3">
+                    <input type="email" id="login-email" placeholder="メールアドレス" class="input-field p-3">
+                    <button type="button" id="login-button" class="w-full btn-primary font-bold py-3 px-4 rounded-lg shadow-md">ログイン</button>
+                    <button type="button" id="goto-register-button" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg">新規登録はこちら</button>
                 </form>
             </div>
 
@@ -36,13 +75,14 @@
             <div id="register-screen" class="hidden">
                  <div class="text-center mb-8">
                     <h1 class="text-4xl font-bold text-primary">新規登録</h1>
+                    <p class="text-gray-500 mt-2">情報を入力してください</p>
                 </div>
-                <div id="register-message" class="message-area"></div>
+                <div id="register-message" class="mb-4 text-center"></div>
                 <form class="space-y-4">
-                    <input type="text" id="register-name" placeholder="氏名" class="input-field">
-                    <input type="email" id="register-email" placeholder="メールアドレス" class="input-field">
-                    <button type="button" id="register-button" class="btn btn-primary">登録</button>
-                    <button type="button" id="goto-login-button" class="btn btn-secondary">ログイン画面へ</button>
+                    <input type="text" id="register-name" placeholder="氏名" class="input-field p-3">
+                    <input type="email" id="register-email" placeholder="メールアドレス" class="input-field p-3">
+                    <button type="button" id="register-button" class="w-full btn-primary font-bold py-3 px-4 rounded-lg shadow-md">登録</button>
+                    <button type="button" id="goto-login-button" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg">ログイン画面へ</button>
                 </form>
             </div>
 
@@ -52,7 +92,7 @@
                     <h1 class="text-4xl font-bold text-primary">会員証</h1>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm mx-auto flex flex-col items-center">
-                    <div id="qr-code-container" class="w-48 h-48 mb-6 p-2 border-4 border-gray-100 rounded-lg">
+                    <div class="w-48 h-48 mb-6 p-2 border-4 border-gray-100 rounded-lg">
                         <img id="qr-code" src="" alt="QR Code" class="w-full h-full object-contain">
                     </div>
                     <div class="text-center">
@@ -61,8 +101,8 @@
                     </div>
                 </div>
                  <div class="mt-8 space-y-4">
-                    <button type="button" id="goto-edit-button" class="btn btn-primary">登録情報の変更</button>
-                    <button type="button" id="logout-button" class="btn btn-secondary">ログアウト</button>
+                    <button type="button" id="goto-edit-button" class="w-full btn-primary font-bold py-3 px-4 rounded-lg shadow-md">登録情報の変更</button>
+                    <button type="button" id="logout-button" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg">ログアウト</button>
                 </div>
             </div>
 
@@ -71,18 +111,17 @@
                 <div class="text-center mb-8">
                     <h1 class="text-4xl font-bold text-primary">登録情報の変更</h1>
                 </div>
-                <div id="edit-message" class="message-area"></div>
+                <div id="edit-message" class="mb-4 text-center"></div>
                 <form class="space-y-4">
-                    <input type="text" id="edit-name" class="input-field">
-                    <input type="email" id="edit-email" class="input-field">
-                    <button type="button" id="update-button" class="btn btn-primary">変更を保存</button>
-                    <button type="button" id="back-to-card-button" class="btn btn-secondary">戻る</button>
+                    <input type="text" id="edit-name" class="input-field p-3">
+                    <input type="email" id="edit-email" class="input-field p-3">
+                    <button type="button" id="update-button" class="w-full btn-primary font-bold py-3 px-4 rounded-lg shadow-md">変更を保存</button>
+                    <button type="button" id="back-to-card-button" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg">戻る</button>
                 </form>
             </div>
         </main>
         
-        <!-- Footer -->
-        <footer class="app-footer"></footer>
+        <!-- フッターはcommon.jsによってここに追加されます -->
     </div>
 
     <!-- ローディングインジケーター -->
@@ -90,131 +129,131 @@
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary"></div>
     </div>
 
-    <script type="module" src="common.js"></script>
-    <script type="module">
-        import { initCommonUI, callGasApi } from './common.js';
-        
-        // --- DOM Elements ---
-        const screens = {
-            login: document.getElementById('login-screen'),
-            register: document.getElementById('register-screen'),
-            card: document.getElementById('card-screen'),
-            edit: document.getElementById('edit-screen')
-        };
-        const loader = document.getElementById('loader');
+    <script src="common.js"></script>
+    <script>
+        // このページのすべてのJavaScriptロジックのエントリーポイント
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- ステップ1: 共通UI（ヘッダー・フッター）を初期化 ---
+            createCommonHeader();
+            createCommonFooter();
 
-        // --- UI Control ---
-        function showScreen(screenName) {
-            Object.values(screens).forEach(s => s.classList.add('hidden'));
-            if(screens[screenName]) screens[screenName].classList.remove('hidden');
-        }
+            // --- ステップ2: このページで使うDOM要素をすべて取得 ---
+            const screens = {
+                login: document.getElementById('login-screen'),
+                register: document.getElementById('register-screen'),
+                card: document.getElementById('card-screen'),
+                edit: document.getElementById('edit-screen')
+            };
 
-        function showMessage(elementId, message, isError = false) {
-            const el = document.getElementById(elementId);
-            el.textContent = message;
-            el.className = `message-area ${isError ? 'error' : 'success'}`;
-        }
+            // --- ステップ3: このページ固有の関数を定義 ---
+            
+            // 画面を切り替える関数
+            function showScreen(screenName) {
+                Object.values(screens).forEach(screen => screen.classList.add('hidden'));
+                if (screens[screenName]) {
+                    screens[screenName].classList.remove('hidden');
+                }
+            }
 
-        function validateInput(name, email) {
-            if (!name.trim() || !email.trim()) return '氏名とメールアドレスは必須です。';
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) return '有効なメールアドレスを入力してください。';
-            return null;
-        }
+            // ユーザーへのメッセージを表示する関数
+            function showMessage(elementId, message, isError = false) {
+                const el = document.getElementById(elementId);
+                if (!el) return;
+                
+                const textColor = isError ? '#b91c1c' : '#065f46'; // text-red-800 or text-green-800
+                const bgColor = isError ? '#fee2e2' : '#d1fae5'; // bg-red-100 or bg-green-100
+                
+                el.innerHTML = `<div style="background-color: ${bgColor}; color: ${textColor};" class="p-3 rounded-lg">${message}</div>`;
+                setTimeout(() => { el.innerHTML = ''; }, 5000);
+            }
 
-        // --- Event Handlers ---
-        document.getElementById('goto-register-button').addEventListener('click', () => showScreen('register'));
-        document.getElementById('goto-login-button').addEventListener('click', () => showScreen('login'));
-        document.getElementById('goto-edit-button').addEventListener('click', () => {
-             const user = JSON.parse(localStorage.getItem('EveKuruUser'));
-             if(user){
+            // 入力値のバリデーションを行う関数
+            function validateInput(name, email) {
+                if (!name.trim() || !email.trim()) {
+                    return '氏名とメールアドレスは必須です。';
+                }
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    return '有効なメールアドレスを入力してください。';
+                }
+                return null;
+            }
+
+            // 会員証画面を表示・更新する関数
+            function displayCardScreen(user) {
+                document.getElementById('qr-code').src = user.qrCodeUrl;
+                document.getElementById('card-name').textContent = user.name;
+                document.getElementById('card-email').textContent = user.email;
                 document.getElementById('edit-name').value = user.name;
                 document.getElementById('edit-email').value = user.email;
-             }
-            showScreen('edit');
-        });
-        document.getElementById('back-to-card-button').addEventListener('click', () => showScreen('card'));
+                showScreen('card');
+            }
 
-        document.getElementById('register-button').addEventListener('click', async () => {
-            const name = document.getElementById('register-name').value;
-            const email = document.getElementById('register-email').value;
-            const validationError = validateInput(name, email);
-            if (validationError) {
-                showMessage('register-message', validationError, true);
-                return;
-            }
-            loader.classList.remove('hidden');
-            try {
-                const result = await callGasApi('registerUser', { name, email });
-                showMessage('login-message', result.message, false);
-                showScreen('login');
-            } catch (error) {
-                showMessage('register-message', error.message, true);
-            } finally {
-                loader.classList.add('hidden');
-            }
-        });
 
-        document.getElementById('login-button').addEventListener('click', async () => {
-            const name = document.getElementById('login-name').value;
-            const email = document.getElementById('login-email').value;
-            const validationError = validateInput(name, email);
-            if (validationError) {
-                showMessage('login-message', validationError, true);
-                return;
-            }
-            loader.classList.remove('hidden');
-            try {
-                const result = await callGasApi('loginUser', { name, email });
-                localStorage.setItem('EveKuruUser', JSON.stringify(result.user));
-                displayCardScreen(result.user);
-            } catch (error) {
-                showMessage('login-message', error.message, true);
-            } finally {
-                loader.classList.add('hidden');
-            }
-        });
+            // --- ステップ4: すべてのボタンにイベントリスナーを設定 ---
+            
+            // 画面遷移ボタン
+            document.getElementById('goto-register-button').addEventListener('click', () => showScreen('register'));
+            document.getElementById('goto-login-button').addEventListener('click', () => showScreen('login'));
+            document.getElementById('goto-edit-button').addEventListener('click', () => showScreen('edit'));
+            document.getElementById('back-to-card-button').addEventListener('click', () => showScreen('card'));
 
-        document.getElementById('update-button').addEventListener('click', async () => {
-            const user = JSON.parse(localStorage.getItem('EveKuruUser'));
-            const newName = document.getElementById('edit-name').value;
-            const newEmail = document.getElementById('edit-email').value;
-            const validationError = validateInput(newName, newEmail);
-            if (validationError) {
-                showMessage('edit-message', validationError, true);
-                return;
-            }
-            loader.classList.remove('hidden');
-            try {
-                const result = await callGasApi('updateUserInfo', { oldEmail: user.email, newName, newEmail });
+            // 機能ボタン
+            document.getElementById('register-button').addEventListener('click', async () => {
+                const name = document.getElementById('register-name').value;
+                const email = document.getElementById('register-email').value;
+                if (validateInput(name, email)) {
+                    return showMessage('register-message', validateInput(name, email), true);
+                }
+                const response = await callGasApi('registerUser', { name, email });
+                if (response.success) {
+                    showMessage('login-message', '登録が完了しました！ログインしてください。', false);
+                    showScreen('login');
+                } else {
+                    showMessage('register-message', response.message, true);
+                }
+            });
+
+            document.getElementById('login-button').addEventListener('click', async () => {
+                const name = document.getElementById('login-name').value;
+                const email = document.getElementById('login-email').value;
+                if (validateInput(name, email)) {
+                    return showMessage('login-message', validateInput(name, email), true);
+                }
+                const response = await callGasApi('loginUser', { name, email });
+                if (response.success) {
+                    localStorage.setItem('EveKuruUser', JSON.stringify(response.user));
+                    displayCardScreen(response.user);
+                } else {
+                    showMessage('login-message', response.message, true);
+                }
+            });
+            
+            document.getElementById('update-button').addEventListener('click', async () => {
+                const name = document.getElementById('edit-name').value;
+                const email = document.getElementById('edit-email').value;
+                if (validateInput(name, email)) {
+                    return showMessage('edit-message', validateInput(name, email), true);
+                }
+                const response = await callGasApi('updateUserInfo', { name, email });
+                if (response.success) {
+                    localStorage.removeItem('EvekuruUser');
+                    showMessage('login-message', '情報が変更されました。再度ログインしてください。', false);
+                    showScreen('login');
+                } else {
+                    showMessage('edit-message', response.message, true);
+                }
+            });
+
+            document.getElementById('logout-button').addEventListener('click', () => {
                 localStorage.removeItem('EveKuruUser');
-                showMessage('login-message', result.message, false);
+                document.getElementById('login-name').value = '';
+                document.getElementById('login-email').value = '';
+                showMessage('login-message', 'ログアウトしました。', false);
                 showScreen('login');
-            } catch (error) {
-                showMessage('edit-message', error.message, true);
-            } finally {
-                loader.classList.add('hidden');
-            }
-        });
+            });
 
-        document.getElementById('logout-button').addEventListener('click', () => {
-            localStorage.removeItem('EveKuruUser');
-            document.getElementById('login-name').value = '';
-            document.getElementById('login-email').value = '';
-            showMessage('login-message', 'ログアウトしました。', false);
-            showScreen('login');
-        });
-        
-        function displayCardScreen(user) {
-            document.getElementById('qr-code').src = user.qrCodeUrl;
-            document.getElementById('card-name').textContent = user.name;
-            document.getElementById('card-email').textContent = user.email;
-            showScreen('card');
-        }
-
-        // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
-            initCommonUI("EveKuru");
+            // --- ステップ5: アプリの初期表示処理を実行 ---
             const savedUser = localStorage.getItem('EveKuruUser');
             if (savedUser) {
                 displayCardScreen(JSON.parse(savedUser));
@@ -225,3 +264,4 @@
     </script>
 </body>
 </html>
+
