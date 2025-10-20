@@ -5,75 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EveKuru - ID/パスワードのリセット</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="common.css">
 </head>
 <body class="antialiased">
-    <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col p-4 pt-20">
-        <main class="flex-grow flex flex-col justify-center">
-            <div id="forgot-screen">
-                <div class="text-center mb-6">
-                    <h1 class="text-4xl font-bold text-primary">ID/パスワードの<br>リセット</h1>
+    <div class="min-h-screen flex flex-col">
+        <main class="flex-grow flex flex-col justify-center items-center p-4 pt-24">
+            <div class="w-full max-w-md">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-primary">ID/パスワードを忘れた方</h1>
                 </div>
                 <div id="forgot-message" class="mb-4 text-center"></div>
-                <form class="space-y-4 bg-white p-6 rounded-lg shadow">
-                    <div>
-                        <p class="text-sm text-gray-700 mb-2">リセットを希望するものにチェックを入れてください。</p>
-                        <div class="flex space-x-4">
-                            <label class="flex items-center"><input type="checkbox" id="reset_id" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"> <span class="ml-2">ID</span></label>
-                            <label class="flex items-center"><input type="checkbox" id="reset_password" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"> <span class="ml-2">パスワード</span></label>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="mb-4 text-sm text-gray-600">リセットを希望するものにチェックを入れてください。</p>
+                    <div class="flex items-center space-x-6 mb-4">
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" id="reset-id-check" class="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary">
+                            <span>ID</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" id="reset-password-check" class="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary">
+                            <span>パスワード</span>
+                        </label>
+                    </div>
+                    <form class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" id="forgot-lastName" placeholder="姓" class="input-field p-3 w-full">
+                            <input type="text" id="forgot-firstName" placeholder="名" class="input-field p-3 w-full">
                         </div>
-                    </div>
-                    <div class="flex space-x-2">
-                        <input type="text" id="last_name" placeholder="姓" class="input-field p-3 w-1/2" required>
-                        <input type="text" id="first_name" placeholder="名" class="input-field p-3 w-1/2" required>
-                    </div>
-                    <input type="email" id="e-mail" placeholder="登録したメールアドレス" class="input-field p-3" required>
-                    <button type="button" id="send-email-button" class="w-full btn-primary font-bold py-3 px-4 rounded-lg shadow-md">リセットメールを送信</button>
-                    <button type="button" id="back-to-login-button" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg">戻る</button>
-                </form>
+                        <div>
+                            <input type="email" id="forgot-email" placeholder="メールアドレス" class="input-field p-3 w-full">
+                        </div>
+                        <button type="button" id="send-email-button" class="w-full btn-primary font-bold py-3 px-4 rounded-lg shadow-md">リセットメールを送信</button>
+                        <button type="button" id="back-to-login-button" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg">戻る</button>
+                    </form>
+                </div>
             </div>
         </main>
     </div>
-    <div id="loader" class="loader-container hidden">
-        <div class="loader-spinner"></div>
-    </div>
-    <script src="common.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const eventParam = new URLSearchParams(window.location.search).toString();
 
+    <script type="module">
+        import { initCommonPage, callGasApi, showMessage } from './common.js';
+        
+        function pageInit() {
+            document.getElementById('back-to-login-button').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+            
             document.getElementById('send-email-button').addEventListener('click', async () => {
-                const resetId = document.getElementById('reset_id').checked;
-                const resetPassword = document.getElementById('reset_password').checked;
+                const idCheck = document.getElementById('reset-id-check').checked;
+                const pwCheck = document.getElementById('reset-password-check').checked;
+                const lastName = document.getElementById('forgot-lastName').value;
+                const firstName = document.getElementById('forgot-firstName').value;
+                const email = document.getElementById('forgot-email').value;
                 
                 let resetType = '';
-                if (resetId && resetPassword) resetType = 'id_password_reset';
-                else if (resetId) resetType = 'id_reset';
-                else if (resetPassword) resetType = 'password_reset';
-                else {
-                    return showMessage('forgot-message', 'リセットしたい項目にチェックを入れてください。', true);
+                if (idCheck && pwCheck) resetType = 'id_password_reset';
+                else if (idCheck) resetType = 'id_reset';
+                else if (pwCheck) resetType = 'password_reset';
+
+                if (!resetType) {
+                    showMessage('forgot-message', 'リセットしたい項目にチェックを入れてください。', true);
+                    return;
+                }
+                if (!lastName || !firstName || !email) {
+                    showMessage('forgot-message', 'すべての情報を入力してください。', true);
+                    return;
                 }
 
-                const payload = {
-                    lastName: document.getElementById('last_name').value,
-                    firstName: document.getElementById('first_name').value,
-                    email: document.getElementById('e-mail').value,
-                    resetType: resetType
-                };
-
-                if (!payload.lastName || !payload.firstName || !payload.email) {
-                    return showMessage('forgot-message', 'すべての項目を入力してください。', true);
+                const result = await callGasApi({ action: 'sendResetEmail', lastName, firstName, email, resetType });
+                
+                if (result.success) {
+                    showMessage('forgot-message', result.message, false);
+                } else {
+                    showMessage('forgot-message', result.message, true);
                 }
-
-                const response = await callGasApi('sendResetEmail', payload);
-                showMessage('forgot-message', response.message, !response.success);
             });
-
-            document.getElementById('back-to-login-button').addEventListener('click', () => {
-                window.location.href = `index.html?${eventParam}`;
-            });
-        });
+        }
+        
+        initCommonPage(pageInit);
     </script>
 </body>
 </html>
+
