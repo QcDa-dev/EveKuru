@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="common.css">
 </head>
 <body class="antialiased">
-    <!-- ★★★ 修正箇所2: IDを追加 ★★★ -->
     <div id="main-container" class="min-h-screen flex flex-col">
         <main class="flex-grow flex flex-col justify-center items-center p-4 pt-24">
             <div class="w-full max-w-md">
@@ -39,11 +38,11 @@
     </div>
 
     <script type="module">
-        import { initCommonPage, callGasApi, showMessage } from './common.js';
+        import { initCommonPage, callGasApi, showMessage, navigateTo } from './common.js';
         
         function pageInit() {
             document.getElementById('goto-register-button').addEventListener('click', () => {
-                window.location.href = 'register.html' + window.location.search;
+                navigateTo('register.html');
             });
 
             document.getElementById('login-button').addEventListener('click', async () => {
@@ -59,8 +58,7 @@
                 
                 if (result.success) {
                     sessionStorage.setItem('EveKuruUser', JSON.stringify(result.user));
-                    // ★★★ 修正箇所1: URLパラメータを引き継ぐ ★★★
-                    window.location.href = 'card.html' + window.location.search;
+                    navigateTo('card.html');
                 } else {
                     showMessage('login-message', result.message, true);
                 }
