@@ -47,11 +47,11 @@
     </div>
 
     <script type="module">
-        import { initCommonPage, callGasApi, showMessage } from './common.js';
+        import { initCommonPage, callGasApi, showMessage, navigateTo } from './common.js';
         
         function pageInit() {
             document.getElementById('back-to-login-button').addEventListener('click', () => {
-                window.location.href = 'index.html';
+                navigateTo('index.html');
             });
             
             document.getElementById('send-email-button').addEventListener('click', async () => {
