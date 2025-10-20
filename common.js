@@ -86,7 +86,7 @@ function createCommonUI() {
           </div>
         </nav>
       </div>
-      <div class="absolute bottom-4 left-6 text-sm text-gray-400">ver 4.1.0</div>
+      <div class="absolute bottom-4 left-6 text-sm text-gray-400">ver 4.2.0</div>
     </div>`;
 
     const footerHTML = `
@@ -100,10 +100,15 @@ function createCommonUI() {
     </div>`;
 
     document.body.insertAdjacentHTML('afterbegin', loaderHTML);
-    const mainWrapper = document.querySelector('.min-h-screen.flex.flex-col');
+    
+    // ★★★ 修正箇所2: IDセレクタで要素を確実に取得 ★★★
+    const mainWrapper = document.getElementById('main-container');
     if (mainWrapper) {
         mainWrapper.insertAdjacentHTML('afterbegin', headerHTML + menuHTML);
         mainWrapper.insertAdjacentHTML('beforeend', footerHTML);
+    } else {
+        console.error('Error: #main-container element not found. Header and Footer could not be injected.');
+        return; // UI生成に失敗した場合はここで処理を中断
     }
 
     const menuButton = document.getElementById('menu-button');
@@ -123,11 +128,14 @@ function createCommonUI() {
 
 // --- ページ初期化エントリーポイント ---
 function initCommonPage(pageSpecificInit) {
-    // DOMが読み込まれた後に全ての処理を開始する
     document.addEventListener('DOMContentLoaded', () => {
         createCommonUI();
         if (pageSpecificInit && typeof pageSpecificInit === 'function') {
-            pageSpecificInit();
+            try {
+                pageSpecificInit();
+            } catch(e) {
+                console.error("Error executing page-specific initialization:", e);
+            }
         }
     });
 }
