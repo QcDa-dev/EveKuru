@@ -5,8 +5,33 @@
  */
 
 // --- グローバル定数 ---
-// 【重要】GASを「新しいデプロイ」で再発行したURLに必ず置き換えてください
 const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbw_uoAzQx99fw9J0vX8IYmKRI_l7KEmpsmNnjPG9AUjUkMsgcem_OZa8c3XgqWNdAzI/exec';
+
+// ★★★ 修正箇所1: イベントパラメータを管理する関数群を追加 ★★★
+function getEventQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const event = params.get('event');
+    return event ? `?event=${encodeURIComponent(event)}` : '';
+}
+
+function navigateTo(page) {
+    window.location.href = page + getEventQuery();
+}
+
+function updateLocalLinks() {
+    const eventQuery = getEventQuery();
+    if (!eventQuery) return;
+
+    document.querySelectorAll('a').forEach(a => {
+        const href = a.getAttribute('href');
+        if (href && !href.startsWith('http') && !href.startsWith('#') && href.includes('.html')) {
+            if (!a.href.includes('?event=')) {
+                 a.href = href + eventQuery;
+            }
+        }
+    });
+}
+// ★★★ ここまで ★★★
 
 // --- UI制御 ---
 function showLoader() { document.getElementById('loader')?.classList.remove('hidden'); }
@@ -34,19 +59,16 @@ async function callGasApi(payload) {
     return await new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.id = callbackName;
-      
       window[callbackName] = (result) => {
         document.head.removeChild(script);
         delete window[callbackName];
         resolve(result);
       };
-      
       script.onerror = () => {
         document.head.removeChild(script);
         delete window[callbackName];
         reject(new Error('API request failed.'));
       };
-
       script.src = url;
       document.head.appendChild(script);
     });
@@ -72,7 +94,6 @@ function createCommonUI() {
       </div>
     </header>`;
   
-    // ★★★ 修正箇所2: リリースノートのリンクに target="_blank" を追加 ★★★
     const menuHTML = `
     <div id="menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
     <div id="side-menu" class="fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform translate-x-full transition-transform duration-300">
@@ -87,7 +108,7 @@ function createCommonUI() {
           </div>
         </nav>
       </div>
-      <div class="absolute bottom-4 left-6 text-sm text-gray-400">ver 4.3.0</div>
+      <div class="absolute bottom-4 left-6 text-sm text-gray-400">ver 5.0.0</div>
     </div>`;
 
     const footerHTML = `
@@ -107,7 +128,7 @@ function createCommonUI() {
         mainWrapper.insertAdjacentHTML('afterbegin', headerHTML + menuHTML);
         mainWrapper.insertAdjacentHTML('beforeend', footerHTML);
     } else {
-        console.error('Error: #main-container element not found. Header and Footer could not be injected.');
+        console.error('Error: #main-container element not found.');
         return;
     }
 
@@ -130,6 +151,7 @@ function createCommonUI() {
 function initCommonPage(pageSpecificInit) {
     document.addEventListener('DOMContentLoaded', () => {
         createCommonUI();
+        updateLocalLinks(); // ★★★ 修正箇所1: リンク更新関数を呼び出す ★★★
         if (pageSpecificInit && typeof pageSpecificInit === 'function') {
             try {
                 pageSpecificInit();
@@ -140,5 +162,5 @@ function initCommonPage(pageSpecificInit) {
     });
 }
 
-export { initCommonPage, callGasApi, showMessage };
+export { initCommonPage, callGasApi, showMessage, navigateTo };
 
