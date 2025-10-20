@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EveKuru - アカウント移行</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="common.css">
+</head>
+<body class="antialiased">
+    <div class="min-h-screen flex flex-col">
+        <main class="flex-grow flex flex-col justify-center items-center p-4 pt-24">
+            <div class="w-full max-w-md">
+                <div class="text-center mb-6">
+                    <h1 class="text-3xl font-bold text-primary">アカウント移行</h1>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="text-sm text-gray-700 leading-relaxed mb-4">
+                        以前「QcDa」としてリリースしていた当アプリは、2025/10/20より「EveKuru」として生まれ変わりました。<br>
+                        「QcDa」に登録をされていた方は、以下のフォームに必要事項を記入していただくことで、これまで通り会員証を利用できます。<br>
+                        「QcDa」のご利用経験がない方は、ログイン画面より「新規登録」をお願いいたします。
+                    </p>
+                    <div id="migration-message" class="mb-4 text-center"></div>
+                    <form class="space-y-4">
+                        <div>
+                            <input type="email" id="migration-email" placeholder="QcDaで登録したメールアドレス" class="input-field p-3 w-full">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" id="migration-lastName" placeholder="姓" class="input-field p-3 w-full">
+                            <input type="text" id="migration-firstName" placeholder="名" class="input-field p-3 w-full">
+                        </div>
+                        <div>
+                            <input type="text" id="migration-userID" placeholder="新しいID" class="input-field p-3 w-full">
+                        </div>
+                        <div>
+                            <input type="password" id="migration-password" placeholder="新しいパスワード" class="input-field p-3 w-full">
+                        </div>
+                        <button type="button" id="migration-button" class="w-full btn-primary font-bold py-3 px-4 rounded-lg shadow-md">登録</button>
+                        <button type="button" id="back-to-login-button" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg">戻る</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initCommonPage, callGasApi, showMessage } from './common.js';
+
+        function pageInit() {
+            document.getElementById('back-to-login-button').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+
+            document.getElementById('migration-button').addEventListener('click', async () => {
+                const email = document.getElementById('migration-email').value;
+                const lastName = document.getElementById('migration-lastName').value;
+                const firstName = document.getElementById('migration-firstName').value;
+                const userID = document.getElementById('migration-userID').value;
+                const password = document.getElementById('migration-password').value;
+
+                if (!email || !lastName || !firstName || !userID || !password) {
+                    showMessage('migration-message', 'すべての項目を入力してください。', true);
+                    return;
+                }
+
+                const result = await callGasApi({ action: 'migrateUser', email, lastName, firstName, userID, password });
+                
+                if (result.success) {
+                    showMessage('migration-message', result.message, false);
+                    setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+                } else {
+                    showMessage('migration-message', result.message, true);
+                }
+            });
+        }
+        
+        initCommonPage(pageInit);
+    </script>
+</body>
+</html>
+
