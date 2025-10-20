@@ -5,68 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EveKuru - 新規登録</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="common.css">
 </head>
 <body class="antialiased">
-    <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col p-4 pt-20">
-        <main class="flex-grow flex flex-col justify-center">
-            <div id="register-screen">
-                <div class="text-center mb-8">
+    <div class="min-h-screen flex flex-col">
+        <main class="flex-grow flex flex-col justify-center items-center p-4 pt-24">
+            <div class="w-full max-w-md">
+                 <div class="text-center mb-8">
                     <h1 class="text-4xl font-bold text-primary">新規登録</h1>
-                    <p class="text-gray-500 mt-2">情報を入力してください</p>
                 </div>
                 <div id="register-message" class="mb-4 text-center"></div>
                 <form class="space-y-4">
-                    <input type="text" id="userID" placeholder="ID" class="input-field p-3" required>
-                    <input type="password" id="password" placeholder="パスワード" class="input-field p-3" required>
-                    <div class="flex space-x-2">
-                        <input type="text" id="last_name" placeholder="姓" class="input-field p-3 w-1/2" required>
-                        <input type="text" id="first_name" placeholder="名" class="input-field p-3 w-1/2" required>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="register-lastName" placeholder="姓" class="input-field p-3 w-full">
+                        <input type="text" id="register-firstName" placeholder="名" class="input-field p-3 w-full">
                     </div>
-                    <input type="email" id="e-mail" placeholder="メールアドレス" class="input-field p-3" required>
+                    <div>
+                        <input type="email" id="register-email" placeholder="メールアドレス" class="input-field p-3 w-full">
+                    </div>
+                    <div>
+                        <input type="text" id="register-userID" placeholder="ID" class="input-field p-3 w-full">
+                    </div>
+                    <div>
+                        <input type="password" id="register-password" placeholder="パスワード" class="input-field p-3 w-full">
+                    </div>
                     <button type="button" id="register-button" class="w-full btn-primary font-bold py-3 px-4 rounded-lg shadow-md">登録</button>
-                    <button type="button" id="goto-login-button" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg">ログイン画面へ</button>
+                    <button type="button" id="back-to-login-button" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg">戻る</button>
                 </form>
             </div>
         </main>
     </div>
-    <div id="loader" class="loader-container hidden">
-        <div class="loader-spinner"></div>
-    </div>
-    <script src="common.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const eventParam = new URLSearchParams(window.location.search).toString();
+
+    <script type="module">
+        import { initCommonPage, callGasApi, showMessage } from './common.js';
+        
+        function pageInit() {
+            document.getElementById('back-to-login-button').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
 
             document.getElementById('register-button').addEventListener('click', async () => {
-                const payload = {
-                    userID: document.getElementById('userID').value,
-                    password: document.getElementById('password').value,
-                    lastName: document.getElementById('last_name').value,
-                    firstName: document.getElementById('first_name').value,
-                    email: document.getElementById('e-mail').value,
-                };
+                const lastName = document.getElementById('register-lastName').value;
+                const firstName = document.getElementById('register-firstName').value;
+                const email = document.getElementById('register-email').value;
+                const userID = document.getElementById('register-userID').value;
+                const password = document.getElementById('register-password').value;
 
-                for (const key in payload) {
-                    if (!payload[key]) {
-                        return showMessage('register-message', 'すべての項目を入力してください。', true);
-                    }
+                if (!lastName || !firstName || !email || !userID || !password) {
+                    showMessage('register-message', 'すべての項目を入力してください。', true);
+                    return;
                 }
 
-                const response = await callGasApi('registerUser', payload);
-                if (response.success) {
-                    showMessage('register-message', '登録が完了しました！ログインページに移動します。');
-                    setTimeout(() => window.location.href = `index.html?${eventParam}`, 2000);
+                const result = await callGasApi({ action: 'registerUser', lastName, firstName, email, userID, password });
+                
+                if (result.success) {
+                    showMessage('register-message', result.message, false);
+                    setTimeout(() => { window.location.href = 'index.html'; }, 2000);
                 } else {
-                    showMessage('register-message', response.message, true);
+                    showMessage('register-message', result.message, true);
                 }
             });
-
-            document.getElementById('goto-login-button').addEventListener('click', () => {
-                window.location.href = `index.html?${eventParam}`;
-            });
-        });
+        }
+        
+        initCommonPage(pageInit);
     </script>
 </body>
 </html>
+
