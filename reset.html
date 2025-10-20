@@ -28,7 +28,7 @@
     </div>
 
     <script type="module">
-        import { initCommonPage, callGasApi, showMessage } from './common.js';
+        import { initCommonPage, callGasApi, showMessage, navigateTo } from './common.js';
         
         function pageInit() {
             const params = new URLSearchParams(window.location.search);
@@ -56,8 +56,13 @@
                     <div><input type="password" id="new_password" placeholder="新しいパスワード" class="input-field p-3 w-full"></div>
                 `;
             } else if (mode === 'id_password_reset') {
+                // ★★★ 修正箇所2: 本人確認用の姓・名入力欄を追加 ★★★
                 title.textContent = 'IDとパスワードのリセット';
                 formHTML = `
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="lastName" placeholder="登録した姓" class="input-field p-3 w-full">
+                        <input type="text" id="firstName" placeholder="登録した名" class="input-field p-3 w-full">
+                    </div>
                     <div><input type="text" id="new_ID" placeholder="新しいID" class="input-field p-3 w-full"></div>
                     <div><input type="password" id="new_password" placeholder="新しいパスワード" class="input-field p-3 w-full"></div>
                 `;
@@ -66,7 +71,6 @@
             form.innerHTML = formHTML;
             
             document.getElementById('reset-button').addEventListener('click', async () => {
-                // ★★★ 修正箇所1: 未入力チェックを追加 ★★★
                 const payload = { action: 'resetCredential', mode, email };
                 let validationError = false;
 
@@ -79,21 +83,22 @@
                     payload.newPassword = document.getElementById('new_password').value;
                     if (!payload.currentID || !payload.newPassword) validationError = true;
                 } else if (mode === 'id_password_reset') {
+                    payload.lastName = document.getElementById('lastName').value;
+                    payload.firstName = document.getElementById('firstName').value;
                     payload.newID = document.getElementById('new_ID').value;
                     payload.newPassword = document.getElementById('new_password').value;
-                    if (!payload.newID || !payload.newPassword) validationError = true;
+                    if (!payload.lastName || !payload.firstName || !payload.newID || !payload.newPassword) validationError = true;
                 }
 
                 if (validationError) {
                     showMessage('reset-message', 'すべての項目を入力してください。', true);
                     return;
                 }
-                // ★★★ ここまで ★★★
 
                 const result = await callGasApi(payload);
                 if (result.success) {
                     showMessage('reset-message', result.message, false);
-                    setTimeout(() => { window.location.href = 'index.html' }, 3000);
+                    setTimeout(() => { navigateTo('index.html'); }, 3000);
                 } else {
                     showMessage('reset-message', result.message, true);
                 }
