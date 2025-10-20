@@ -66,17 +66,29 @@
             form.innerHTML = formHTML;
             
             document.getElementById('reset-button').addEventListener('click', async () => {
+                // ★★★ 修正箇所1: 未入力チェックを追加 ★★★
                 const payload = { action: 'resetCredential', mode, email };
+                let validationError = false;
+
                 if (mode === 'id_reset') {
                     payload.currentPassword = document.getElementById('currentPassword').value;
                     payload.newID = document.getElementById('new_ID').value;
+                    if (!payload.currentPassword || !payload.newID) validationError = true;
                 } else if (mode === 'password_reset') {
                     payload.currentID = document.getElementById('currentID').value;
                     payload.newPassword = document.getElementById('new_password').value;
+                    if (!payload.currentID || !payload.newPassword) validationError = true;
                 } else if (mode === 'id_password_reset') {
                     payload.newID = document.getElementById('new_ID').value;
                     payload.newPassword = document.getElementById('new_password').value;
+                    if (!payload.newID || !payload.newPassword) validationError = true;
                 }
+
+                if (validationError) {
+                    showMessage('reset-message', 'すべての項目を入力してください。', true);
+                    return;
+                }
+                // ★★★ ここまで ★★★
 
                 const result = await callGasApi(payload);
                 if (result.success) {
