@@ -2,70 +2,72 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
     <title>EveKuru - ログイン</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="common.css">
 </head>
 <body class="antialiased">
-    <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col p-4 pt-20">
-        <main class="flex-grow flex flex-col justify-center">
-            <div id="login-screen">
+    <div class="min-h-screen flex flex-col">
+        <main class="flex-grow flex flex-col justify-center items-center p-4 pt-24">
+            <div class="w-full max-w-md">
                 <div class="text-center mb-8">
-                    <h1 class="text-5xl font-bold text-primary">EveKuru</h1>
-                    <p class="text-gray-500 mt-2">ログインしてください</p>
+                    <h1 class="text-4xl font-bold text-primary">ログイン</h1>
                 </div>
                 <div id="login-message" class="mb-4 text-center"></div>
                 <form class="space-y-4">
-                    <input type="text" id="userID" placeholder="ID" class="input-field p-3">
-                    <input type="password" id="password" placeholder="パスワード" class="input-field p-3">
+                    <div>
+                        <input type="text" id="login-userID" placeholder="ID" class="input-field p-3 w-full">
+                    </div>
+                    <div>
+                        <input type="password" id="login-password" placeholder="パスワード" class="input-field p-3 w-full">
+                    </div>
                     <button type="button" id="login-button" class="w-full btn-primary font-bold py-3 px-4 rounded-lg shadow-md">ログイン</button>
                     <button type="button" id="goto-register-button" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg">新規登録はこちら</button>
                 </form>
-                <div class="text-center mt-4">
-                    <a href="#" id="goto-forgot-link" class="text-sm text-primary hover:underline">ID・パスワードを忘れた方</a>
+                <div class="text-center mt-6 space-y-3">
+                    <a href="forgot.html" class="text-sm text-primary hover:underline">ID・パスワードを忘れた方</a>
+                    <br>
+                    <!-- ★★★ 修正箇所2: アカウント移行ボタンを追加 ★★★ -->
+                    <a href="migration.html" class="text-sm text-gray-600 hover:text-primary hover:underline">QcDaからのアカウント移行について</a>
                 </div>
             </div>
         </main>
     </div>
-    <div id="loader" class="loader-container hidden">
-        <div class="loader-spinner"></div>
-    </div>
-    <script src="common.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const eventParam = new URLSearchParams(window.location.search).toString();
+
+    <script type="module">
+        import { initCommonPage, callGasApi, showMessage } from './common.js';
+        
+        function pageInit() {
+            document.getElementById('goto-register-button').addEventListener('click', () => {
+                window.location.href = 'register.html';
+            });
 
             document.getElementById('login-button').addEventListener('click', async () => {
-                const userID = document.getElementById('userID').value;
-                const password = document.getElementById('password').value;
-                if (!userID || !password) {
-                    return showMessage('login-message', 'IDとパスワードを入力してください。', true);
-                }
-                const response = await callGasApi('loginUser', { userID, password });
-                if (response.success) {
-                    localStorage.setItem('EveKuruUser', JSON.stringify(response.user));
-                    window.location.href = `card.html?${eventParam}`;
-                } else {
-                    showMessage('login-message', response.message, true);
-                }
-            });
+                const userID = document.getElementById('login-userID').value;
+                const password = document.getElementById('login-password').value;
 
-            document.getElementById('goto-register-button').addEventListener('click', () => {
-                window.location.href = `register.html?${eventParam}`;
+                if (!userID || !password) {
+                    showMessage('login-message', 'IDとパスワードを入力してください。', true);
+                    return;
+                }
+
+                const result = await callGasApi({ action: 'loginUser', userID, password });
+                
+                if (result.success) {
+                    sessionStorage.setItem('EveKuruUser', JSON.stringify(result.user));
+                    window.location.href = 'card.html';
+                } else {
+                    showMessage('login-message', result.message, true);
+                }
             });
-            
-            document.getElementById('goto-forgot-link').addEventListener('click', (e) => {
-                e.preventDefault();
-                window.location.href = `forgot.html?${eventParam}`;
-            });
-            
-            // ログイン済みの場合はカード画面へリダイレクト
-            if (localStorage.getItem('EveKuruUser')) {
-                window.location.href = `card.html?${eventParam}`;
-            }
-        });
+        }
+        
+        initCommonPage(pageInit);
     </script>
 </body>
 </html>
+
