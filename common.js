@@ -72,6 +72,7 @@ function createCommonUI() {
       </div>
     </header>`;
   
+    // ★★★ 修正箇所2: リリースノートのリンクに target="_blank" を追加 ★★★
     const menuHTML = `
     <div id="menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
     <div id="side-menu" class="fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform translate-x-full transition-transform duration-300">
@@ -80,13 +81,13 @@ function createCommonUI() {
         <nav class="flex flex-col space-y-4">
           <a href="guide.html" target="_blank" class="text-lg text-gray-700 hover:text-primary transition-colors">使い方ガイド</a>
           <a href="https://docs.google.com/forms/d/e/1FAIpQLSckrrhDeGQajywfDx9mnGqzDiT1fUPevqi32mAK1JjutlFSlw/viewform" target="_blank" class="text-lg text-gray-700 hover:text-primary transition-colors">お問い合わせ</a>
-          <a href="release-notes.html" class="text-lg text-gray-700 hover:text-primary transition-colors">リリースノート</a>
+          <a href="release-notes.html" target="_blank" class="text-lg text-gray-700 hover:text-primary transition-colors">リリースノート</a>
           <div class="border-t pt-4 mt-2">
             <a href="https://qcda-dev.github.io/HP/" target="_blank" class="text-lg text-gray-700 hover:text-primary transition-colors">QcDa Projectとは</a>
           </div>
         </nav>
       </div>
-      <div class="absolute bottom-4 left-6 text-sm text-gray-400">ver 4.2.0</div>
+      <div class="absolute bottom-4 left-6 text-sm text-gray-400">ver 4.3.0</div>
     </div>`;
 
     const footerHTML = `
@@ -101,14 +102,13 @@ function createCommonUI() {
 
     document.body.insertAdjacentHTML('afterbegin', loaderHTML);
     
-    // ★★★ 修正箇所2: IDセレクタで要素を確実に取得 ★★★
     const mainWrapper = document.getElementById('main-container');
     if (mainWrapper) {
         mainWrapper.insertAdjacentHTML('afterbegin', headerHTML + menuHTML);
         mainWrapper.insertAdjacentHTML('beforeend', footerHTML);
     } else {
         console.error('Error: #main-container element not found. Header and Footer could not be injected.');
-        return; // UI生成に失敗した場合はここで処理を中断
+        return;
     }
 
     const menuButton = document.getElementById('menu-button');
