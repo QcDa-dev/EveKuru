@@ -1,166 +1,211 @@
 /**
- * =================================================================
- * EveKuru フロントエンド 共通スクリプト (common.js)
- * =================================================================
+ * EveKuru for Organizers - Common JavaScript Functions
  */
 
-// --- グローバル定数 ---
-const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbw_uoAzQx99fw9J0vX8IYmKRI_l7KEmpsmNnjPG9AUjUkMsgcem_OZa8c3XgqWNdAzI/exec';
+// --- Configuration ---
+export const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyDfNZbhu3xOLjApPQ1a2anibwh-Ck6ZlaO88RcrVtcJX9-EAvdiWgCPvi-xlGfBi-XzQ/exec";
+export const GITHUB_USER = 'qcda-dev';
+export const GITHUB_REPO = 'EveKuru-for-Organizers';
+const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-// ★★★ 修正箇所1: イベントパラメータを管理する関数群を追加 ★★★
-function getEventQuery() {
-    const params = new URLSearchParams(window.location.search);
-    const event = params.get('event');
-    return event ? `?event=${encodeURIComponent(event)}` : '';
-}
+/**
+ * Renders the common header and menu into the placeholder.
+ * @param {string} appName - The name of the application.
+ */
+function renderHeaderAndMenu(appName) {
+    const headerPlaceholder = document.getElementById('header-placeholder');
+    if (!headerPlaceholder) return;
 
-function navigateTo(page) {
-    window.location.href = page + getEventQuery();
-}
-
-function updateLocalLinks() {
-    const eventQuery = getEventQuery();
-    if (!eventQuery) return;
-
-    document.querySelectorAll('a').forEach(a => {
-        const href = a.getAttribute('href');
-        if (href && !href.startsWith('http') && !href.startsWith('#') && href.includes('.html')) {
-            if (!a.href.includes('?event=')) {
-                 a.href = href + eventQuery;
-            }
-        }
-    });
-}
-// ★★★ ここまで ★★★
-
-// --- UI制御 ---
-function showLoader() { document.getElementById('loader')?.classList.remove('hidden'); }
-function hideLoader() { document.getElementById('loader')?.classList.add('hidden'); }
-function showMessage(elementId, message, isError = false) {
-  const el = document.getElementById(elementId);
-  if (!el) return;
-  el.textContent = message;
-  el.className = isError 
-    ? 'p-3 rounded-lg text-red-700 bg-red-100' 
-    : 'p-3 rounded-lg text-green-700 bg-green-100';
-  setTimeout(() => { el.innerHTML = ''; }, 5000);
-}
-
-// --- API通信 (JSONP) ---
-async function callGasApi(payload) {
-  showLoader();
-  try {
-    const event = new URLSearchParams(window.location.search).get('event') || 'default';
-    const finalPayload = { ...payload, event };
-    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-    const encodedPayload = encodeURIComponent(JSON.stringify(finalPayload));
-    const url = `${GAS_API_URL}?callback=${callbackName}&payload=${encodedPayload}`;
-    
-    return await new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.id = callbackName;
-      window[callbackName] = (result) => {
-        document.head.removeChild(script);
-        delete window[callbackName];
-        resolve(result);
-      };
-      script.onerror = () => {
-        document.head.removeChild(script);
-        delete window[callbackName];
-        reject(new Error('API request failed.'));
-      };
-      script.src = url;
-      document.head.appendChild(script);
-    });
-  } catch (error) {
-    console.error('API Error:', error);
-    return { success: false, message: error.message };
-  } finally {
-    hideLoader();
-  }
-}
-
-// --- 共通UI生成 ---
-function createCommonUI() {
-    const headerHTML = `
-    <header class="fixed top-0 left-0 right-0 bg-white shadow-md z-40">
-      <div class="max-w-md mx-auto flex justify-between items-center p-4">
-        <a href="index.html" class="text-2xl font-bold text-primary">EveKuru</a>
-        <button id="menu-button" class="p-2 z-50">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-600">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-          </svg>
-        </button>
-      </div>
-    </header>`;
-  
-    const menuHTML = `
-    <div id="menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
-    <div id="side-menu" class="fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform translate-x-full transition-transform duration-300">
-      <div class="p-6">
-        <h2 class="text-2xl font-bold text-primary mb-8">Menu</h2>
-        <nav class="flex flex-col space-y-4">
-          <a href="guide.html" target="_blank" class="text-lg text-gray-700 hover:text-primary transition-colors">使い方ガイド</a>
-          <a href="https://docs.google.com/forms/d/e/1FAIpQLSckrrhDeGQajywfDx9mnGqzDiT1fUPevqi32mAK1JjutlFSlw/viewform" target="_blank" class="text-lg text-gray-700 hover:text-primary transition-colors">お問い合わせ</a>
-          <a href="release-notes.html" target="_blank" class="text-lg text-gray-700 hover:text-primary transition-colors">リリースノート</a>
-          <div class="border-t pt-4 mt-2">
-            <a href="https://qcda-dev.github.io/HP/" target="_blank" class="text-lg text-gray-700 hover:text-primary transition-colors">QcDa Projectとは</a>
+    headerPlaceholder.innerHTML = `
+      <header class="app-header">
+          <div class="container">
+              <a href="index.html" class="app-header-title">${appName}</a>
+              <button id="menu-button" class="menu-button" aria-label="Menu">
+                  <i class="fas fa-bars fa-lg"></i>
+              </button>
           </div>
-        </nav>
-      </div>
-      <div class="absolute bottom-4 left-6 text-sm text-gray-400">ver 5.0.0</div>
-    </div>`;
+      </header>
+      <div id="menu-overlay" class="is-hidden"></div>
+      <nav id="menu" class="is-closed">
+          <ul class="menu-list">
+              <li class="menu-list-item"><a href="guide.html" class="menu-link">使い方ガイド</a></li>
+              <li class="menu-list-item"><a href="https://docs.google.com/forms/d/e/1FAIpQLSckrrhDeGQajywfDx9mnGqzDiT1fUPevqi32mAK1JjutlFSlw/viewform?usp=sharing" target="_blank" class="menu-link">お問い合わせ</a></li>
+              <li class="menu-list-item"><a href="release-notes.html" class="menu-link">リリースノート</a></li>
+          </ul>
+          <hr class="my-4 border-gray-200">
+          <ul class="menu-list">
+              <li class="menu-list-item"><a href="https://qcda-dev.github.io/HP/" target="_blank" class="menu-link">QcDa Projectとは</a></li>
+          </ul>
+          <p class="absolute bottom-4 right-4 text-xs text-gray-400">ver 2.4.0</p>
+      </nav>
+    `;
+}
 
-    const footerHTML = `
-    <footer class="text-center py-4">
-      <p class="text-xs text-gray-500">&copy; 2025 QcDa Project. All Rights Reserved.</p>
-    </footer>`;
-
-    const loaderHTML = `
-    <div id="loader" class="loader-container hidden">
-      <div class="loader-spinner"></div>
-    </div>`;
-
-    document.body.insertAdjacentHTML('afterbegin', loaderHTML);
-    
-    const mainWrapper = document.getElementById('main-container');
-    if (mainWrapper) {
-        mainWrapper.insertAdjacentHTML('afterbegin', headerHTML + menuHTML);
-        mainWrapper.insertAdjacentHTML('beforeend', footerHTML);
-    } else {
-        console.error('Error: #main-container element not found.');
-        return;
-    }
-
+/**
+ * Initializes menu toggle functionality.
+ */
+function initMenu() {
     const menuButton = document.getElementById('menu-button');
-    const sideMenu = document.getElementById('side-menu');
+    const menu = document.getElementById('menu');
     const menuOverlay = document.getElementById('menu-overlay');
 
     const toggleMenu = () => {
-        sideMenu.classList.toggle('translate-x-full');
-        menuOverlay.classList.toggle('hidden');
+        if (!menu || !menuOverlay) return;
+        const isClosed = menu.classList.toggle('is-closed');
+        menuOverlay.classList.toggle('is-hidden', isClosed);
     };
 
-    if(menuButton && sideMenu && menuOverlay) {
-        menuButton.addEventListener('click', toggleMenu);
-        menuOverlay.addEventListener('click', toggleMenu);
-    }
+    if (menuButton) menuButton.addEventListener('click', toggleMenu);
+    if (menuOverlay) menuOverlay.addEventListener('click', toggleMenu);
 }
 
-// --- ページ初期化エントリーポイント ---
-function initCommonPage(pageSpecificInit) {
+// --- UI Functions ---
+export function showLoader() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) loadingOverlay.classList.remove('hidden');
+}
+
+export function hideLoader() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) loadingOverlay.classList.add('hidden');
+}
+
+/**
+ * Displays a message in a designated message box.
+ * @param {string} elementId - The ID of the message box element.
+ * @param {string} message - The message to display.
+ * @param {'error' | 'success' | 'info'} type - The type of message.
+ */
+export function showMessage(elementId, message, type) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    el.textContent = message;
+    el.className = 'message-box'; // Reset classes
+    el.classList.add(`is-${type}`);
+}
+
+
+/**
+ * Initializes a standard page with header, menu, and auth guard.
+ * @param {object} config - The page configuration.
+ * @param {string} config.auth - 'public' or 'private'.
+ * @param {string} config.title - The page title.
+ */
+export function initPage(config) {
     document.addEventListener('DOMContentLoaded', () => {
-        createCommonUI();
-        updateLocalLinks(); // ★★★ 修正箇所1: リンク更新関数を呼び出す ★★★
-        if (pageSpecificInit && typeof pageSpecificInit === 'function') {
-            try {
-                pageSpecificInit();
-            } catch(e) {
-                console.error("Error executing page-specific initialization:", e);
-            }
+        renderHeaderAndMenu('EveKuru for Organizers');
+        document.title = `${config.title} - EveKuru for Organizers`;
+        initMenu();
+        if (config.auth === 'private') {
+            authGuard();
         }
+        hideLoader();
     });
 }
 
-export { initCommonPage, callGasApi, showMessage, navigateTo };
+// --- Auth & API ---
+
+/**
+ * Saves session data to both sessionStorage (for the current tab) and localStorage (for persistence).
+ * @param {object} sessionData - The session data to save { sheetId, eventName, exportId }.
+ */
+export function saveSession(sessionData) {
+    sessionStorage.setItem('sheetId', sessionData.sheetId);
+    sessionStorage.setItem('eventName', sessionData.eventName);
+    sessionStorage.setItem('exportId', sessionData.exportId);
+
+    const sessionWithExpiry = {
+        ...sessionData,
+        expiry: new Date().getTime() + SESSION_DURATION
+    };
+    localStorage.setItem('evekuru-organizer-session', JSON.stringify(sessionWithExpiry));
+}
+
+/**
+ * Clears session data from both sessionStorage and localStorage.
+ */
+export function clearSession() {
+    sessionStorage.clear();
+    localStorage.removeItem('evekuru-organizer-session');
+}
+
+/**
+ * Checks for a valid session. First checks sessionStorage, then localStorage.
+ * If a valid localStorage session is found, it populates sessionStorage.
+ * Redirects to index.html if no valid session is found.
+ * @returns {object | null} The session data or null if invalid.
+ */
+export function authGuard() {
+    // 1. Check sessionStorage first (for current tab)
+    let sheetId = sessionStorage.getItem('sheetId');
+    if (sheetId) {
+        return {
+            sheetId,
+            eventName: sessionStorage.getItem('eventName'),
+            exportId: sessionStorage.getItem('exportId')
+        };
+    }
+    
+    // 2. If not in sessionStorage, check localStorage (for persistent login)
+    const storedSession = localStorage.getItem('evekuru-organizer-session');
+    if (storedSession) {
+        const session = JSON.parse(storedSession);
+        // Check if the session has expired
+        if (new Date().getTime() < session.expiry) {
+            // Session is valid, populate sessionStorage and return data
+            sessionStorage.setItem('sheetId', session.sheetId);
+            sessionStorage.setItem('eventName', session.eventName);
+            sessionStorage.setItem('exportId', session.exportId);
+            return session;
+        } else {
+            // Session expired, clear it
+            clearSession();
+        }
+    }
+
+    // 3. No valid session found, redirect to login page
+    window.location.href = 'index.html';
+    return null;
+}
+
+/**
+ * Checks for an auto-login session on the login page.
+ * If a valid session is found in localStorage, redirects to admin.html.
+ */
+export function checkAutoLogin() {
+    const storedSession = localStorage.getItem('evekuru-organizer-session');
+    if (storedSession) {
+        const session = JSON.parse(storedSession);
+        if (new Date().getTime() < session.expiry) {
+            // Valid session found, populate sessionStorage and redirect
+            sessionStorage.setItem('sheetId', session.sheetId);
+            sessionStorage.setItem('eventName', session.eventName);
+            sessionStorage.setItem('exportId', session.exportId);
+            window.location.href = 'admin.html';
+        } else {
+            // Expired session
+            localStorage.removeItem('evekuru-organizer-session');
+        }
+    }
+}
+
+
+export async function callGasApi(payload) {
+    showLoader();
+    try {
+        const response = await fetch(GAS_API_URL, {
+            method: 'POST',
+            mode: 'cors',
+            credentials: 'omit',
+            headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+        return await response.json();
+    } finally {
+        hideLoader();
+    }
+}
 
