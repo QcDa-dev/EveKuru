@@ -58,9 +58,9 @@ async function callGasApi(payload) {
   }
 }
 
-// ★★★ 修正箇所3: exportを追加し、SVGのviewBoxを修正 ★★★
-export function createCommonUI() {
-  const headerHTML = `
+// --- 共通UI生成 ---
+function createCommonUI() {
+    const headerHTML = `
     <header class="fixed top-0 left-0 right-0 bg-white shadow-md z-40">
       <div class="max-w-md mx-auto flex justify-between items-center p-4">
         <a href="index.html" class="text-2xl font-bold text-primary">EveKuru</a>
@@ -72,7 +72,7 @@ export function createCommonUI() {
       </div>
     </header>`;
   
-  const menuHTML = `
+    const menuHTML = `
     <div id="menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
     <div id="side-menu" class="fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform translate-x-full transition-transform duration-300">
       <div class="p-6">
@@ -86,36 +86,44 @@ export function createCommonUI() {
           </div>
         </nav>
       </div>
-      <div class="absolute bottom-4 left-6 text-sm text-gray-400">ver 4.0.0</div>
+      <div class="absolute bottom-4 left-6 text-sm text-gray-400">ver 4.1.0</div>
     </div>`;
 
-  const footerHTML = `
-    <footer class="text-center py-4 mt-auto">
+    const footerHTML = `
+    <footer class="text-center py-4">
       <p class="text-xs text-gray-500">&copy; 2025 QcDa Project. All Rights Reserved.</p>
     </footer>`;
 
-  const loaderHTML = `
+    const loaderHTML = `
     <div id="loader" class="loader-container hidden">
       <div class="loader-spinner"></div>
     </div>`;
 
-  document.body.insertAdjacentHTML('afterbegin', headerHTML + menuHTML + loaderHTML);
-  document.querySelector('.flex-grow').insertAdjacentHTML('afterend', footerHTML);
+    document.body.insertAdjacentHTML('afterbegin', loaderHTML);
+    const mainWrapper = document.querySelector('.min-h-screen.flex.flex-col');
+    if (mainWrapper) {
+        mainWrapper.insertAdjacentHTML('afterbegin', headerHTML + menuHTML);
+        mainWrapper.insertAdjacentHTML('beforeend', footerHTML);
+    }
 
-  const menuButton = document.getElementById('menu-button');
-  const sideMenu = document.getElementById('side-menu');
-  const menuOverlay = document.getElementById('menu-overlay');
+    const menuButton = document.getElementById('menu-button');
+    const sideMenu = document.getElementById('side-menu');
+    const menuOverlay = document.getElementById('menu-overlay');
 
-  const toggleMenu = () => {
-    sideMenu.classList.toggle('translate-x-full');
-    menuOverlay.classList.toggle('hidden');
-  };
+    const toggleMenu = () => {
+        sideMenu.classList.toggle('translate-x-full');
+        menuOverlay.classList.toggle('hidden');
+    };
 
-  menuButton.addEventListener('click', toggleMenu);
-  menuOverlay.addEventListener('click', toggleMenu);
+    if(menuButton && sideMenu && menuOverlay) {
+        menuButton.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+    }
 }
 
-export function initCommonPage(pageSpecificInit) {
+// --- ページ初期化エントリーポイント ---
+function initCommonPage(pageSpecificInit) {
+    // DOMが読み込まれた後に全ての処理を開始する
     document.addEventListener('DOMContentLoaded', () => {
         createCommonUI();
         if (pageSpecificInit && typeof pageSpecificInit === 'function') {
@@ -123,4 +131,6 @@ export function initCommonPage(pageSpecificInit) {
         }
     });
 }
+
+export { initCommonPage, callGasApi, showMessage };
 
