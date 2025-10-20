@@ -35,12 +35,12 @@
     </div>
 
     <script type="module">
-        import { initCommonPage } from './common.js';
+        import { initCommonPage, navigateTo } from './common.js';
         
         function pageInit() {
             const user = JSON.parse(sessionStorage.getItem('EveKuruUser'));
             if (!user) {
-                window.location.href = 'index.html';
+                navigateTo('index.html');
                 return;
             }
 
@@ -49,12 +49,12 @@
             document.getElementById('card-email').textContent = user.email;
 
             document.getElementById('goto-edit-button').addEventListener('click', () => {
-                window.location.href = 'edit.html' + window.location.search;
+                navigateTo('edit.html');
             });
             
             document.getElementById('logout-button').addEventListener('click', () => {
                 sessionStorage.removeItem('EveKuruUser');
-                window.location.href = 'index.html';
+                navigateTo('index.html');
             });
         }
         
