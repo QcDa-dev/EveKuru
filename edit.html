@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="common.css">
 </head>
 <body class="antialiased">
-    <div class="min-h-screen flex flex-col">
+    <div id="main-container" class="min-h-screen flex flex-col">
         <main class="flex-grow flex flex-col justify-center items-center p-4 pt-24">
             <div class="w-full max-w-md">
                  <div class="text-center mb-8">
@@ -48,7 +48,7 @@
             document.getElementById('edit-email').value = user.email;
 
             document.getElementById('back-to-card-button').addEventListener('click', () => {
-                window.location.href = 'card.html';
+                window.location.href = 'card.html' + window.location.search;
             });
 
             document.getElementById('update-button').addEventListener('click', async () => {
@@ -70,11 +70,10 @@
                 });
                 
                 if (result.success) {
-                    // Update session storage
                     const updatedUser = { ...user, lastName: newLastName, firstName: newFirstName, email: newEmail };
                     sessionStorage.setItem('EveKuruUser', JSON.stringify(updatedUser));
                     showMessage('edit-message', result.message, false);
-                    setTimeout(() => { window.location.href = 'card.html' }, 2000);
+                    setTimeout(() => { window.location.href = 'card.html' + window.location.search; }, 2000);
                 } else {
                     showMessage('edit-message', result.message, true);
                 }
